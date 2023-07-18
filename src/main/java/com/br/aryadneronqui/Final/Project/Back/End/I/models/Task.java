@@ -11,8 +11,8 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
-@Entity
-@Table(name="tasks")
+//@Entity
+//@Table(name="tasks")
 
 public class Task {
     private UUID id;

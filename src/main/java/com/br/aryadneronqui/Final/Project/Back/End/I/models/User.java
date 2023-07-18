@@ -9,11 +9,11 @@ import java.util.UUID;
 
 
 @Getter
-@Entity
-@Table(name="users")
+//@Entity
+//@Table(name="users")
 
 public class User {
-    @Column
+//    @Column
     private String name;
     private String email;
     private String password;
