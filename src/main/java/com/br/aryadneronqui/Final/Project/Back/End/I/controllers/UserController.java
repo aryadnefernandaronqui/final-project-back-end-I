@@ -7,7 +7,7 @@ import com.br.aryadneronqui.Final.Project.Back.End.I.models.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
