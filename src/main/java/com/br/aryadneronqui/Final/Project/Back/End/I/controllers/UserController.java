@@ -1,9 +1,7 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.controllers;
 
 import com.br.aryadneronqui.Final.Project.Back.End.I.database.Database;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateUser;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.ErrorData;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.Login;
+import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.*;
 import com.br.aryadneronqui.Final.Project.Back.End.I.models.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

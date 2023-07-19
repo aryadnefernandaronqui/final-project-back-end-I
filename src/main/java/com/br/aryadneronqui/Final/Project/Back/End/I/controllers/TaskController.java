@@ -1,18 +1,13 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.controllers;
 
 import com.br.aryadneronqui.Final.Project.Back.End.I.database.Database;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateTask;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.ErrorData;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.OutputTask;
-import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.UpdateTask;
+import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.*;
 import com.br.aryadneronqui.Final.Project.Back.End.I.enums.EStatus;
 import com.br.aryadneronqui.Final.Project.Back.End.I.models.Task;
-import com.br.aryadneronqui.Final.Project.Back.End.I.models.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*")

@@ -3,7 +3,6 @@ package com.br.aryadneronqui.Final.Project.Back.End.I.models;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateTask;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.UpdateTask;
 import com.br.aryadneronqui.Final.Project.Back.End.I.enums.EStatus;
-import jakarta.persistence.*;
 import lombok.Getter;
 
 
@@ -11,8 +10,6 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
-//@Entity
-//@Table(name="tasks")
 
 public class Task {
     private UUID id;

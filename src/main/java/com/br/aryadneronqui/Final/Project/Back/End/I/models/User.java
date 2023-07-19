@@ -1,7 +1,7 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.models;
 
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateUser;
-import jakarta.persistence.*;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -9,11 +9,9 @@ import java.util.UUID;
 
 
 @Getter
-//@Entity
-//@Table(name="users")
 
 public class User {
-//    @Column
+
     private String name;
     private String email;
     private String password;
