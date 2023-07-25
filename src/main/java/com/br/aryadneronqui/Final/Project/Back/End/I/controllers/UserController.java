@@ -43,7 +43,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(new ErrorData("Password doesn't match. Try again."));
 
         }
-        return ResponseEntity.ok().body(userLogged.generateToken());
+        return ResponseEntity.ok().body(new OutputLogin(userLogged.generateToken(), userLogged));
     }
 
 }

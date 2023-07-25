@@ -42,6 +42,10 @@ public class Task {
         if(modifiedTaskInfo.date() != null){
             date = modifiedTaskInfo.date();
         }
+            favorite = modifiedTaskInfo.favorite();
+
+            archived = modifiedTaskInfo.archived();
+
     }
 
 }

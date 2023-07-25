@@ -7,7 +7,9 @@ public record UpdateTask(
         String userEmail,
         String title,
         String description,
-        LocalDate date
+        LocalDate date,
+        boolean favorite,
+        boolean archived
 ) {
 
 
