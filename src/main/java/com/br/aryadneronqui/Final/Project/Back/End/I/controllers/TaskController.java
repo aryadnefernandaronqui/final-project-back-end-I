@@ -1,6 +1,6 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.controllers;
 
-import com.br.aryadneronqui.Final.Project.Back.End.I.database.Database;
+
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateTask;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.ErrorData;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.OutputTask;
@@ -10,9 +10,11 @@ import com.br.aryadneronqui.Final.Project.Back.End.I.models.Task;
 import com.br.aryadneronqui.Final.Project.Back.End.I.models.User;
 import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.TaskRepository;
 import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.UserRepository;
+import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.specifications.TaskSpecifications;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,74 +39,80 @@ public class TaskController {
             @RequestHeader("AuthToken") String token) {
 
 
+        var optionalUser = userRepository.findById(userId);
 
-        var user = userRepository.findById(userId);
-
-        if (user == null) {
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.badRequest().body(new ErrorData("Account doesn't exist. Try a new e-mail."));
         }
-        if(!user.is)
-
-        var tasks = taskRepository.findAll();
-
-        if (titleTask != null) {
-            tasks = tasks.filter(t -> t.getTitle().contains(titleTask));
+        if (!optionalUser.get().isAuthenticated(token)) {
+            return ResponseEntity.badRequest().body(new ErrorData("Invalid token."));
         }
 
-        if (status != null){
-            tasks = tasks.filter(t -> t.getStatus().equals(status));
-        }
+        var specification = TaskSpecifications.filterByTitleAndStatusAndArchived(titleTask, status, archived);
 
-        if(archived){
-            tasks.filter(t -> !t.isArchived());
-        }
+        var task = taskRepository.findAll(specification).stream().map(OutputTask::new).toList();
 
-        return ResponseEntity.ok().body(tasks.map(OutputTask::new).toList());
+
+        return ResponseEntity.ok(task);
+
     }
-
     @PostMapping
+    @Transactional
     public ResponseEntity createTask(@RequestHeader("AuthToken") String token, @RequestBody @Valid CreateTask newTask) {
 
-        var user = Database.getUserByEmail(newTask.userId().toString());
+        var optionalUser = userRepository.findById(newTask.userId());
+        var optionalTask = taskRepository.findAll();
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ErrorData("Account doesn't exist. Try a new e-mail."));
+        }
+        var user = optionalUser.get();
 
         if (user != null && user.isAuthenticated(token)) {
-            var task = new Task(newTask);
-
-            if (Database.taskExist(newTask.title())) {
+            if (optionalTask.contains(newTask.title())) {
                 return ResponseEntity.badRequest().body(new ErrorData("You already have a task with this title."));
             }
 
-            Database.addTask(task);
-            return ResponseEntity.ok().body(task);
-        } else {
-            return ResponseEntity.badRequest().body(new ErrorData("Account doesn't exist. Try a new e-mail."));
         }
+
+        var task = new Task(newTask);
+        taskRepository.save(task);
+        return ResponseEntity.ok().body(task);
 
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity updateTask(@RequestHeader("AuthToken") String token, @PathVariable UUID id, @RequestBody UpdateTask modifiedTask) {
+    @PutMapping("/{id}/{userId}")
+    @Transactional
+    public ResponseEntity updateTask(@RequestHeader("AuthToken") String token, @PathVariable UUID id, @PathVariable UUID userId, @RequestBody UpdateTask modifiedTask) {
 
-        var user = Database.getUserByEmail(modifiedTask.userEmail());
-        var task = Database.getTaskById(id);
+        var optionalUser = userRepository.findById(userId);
+        var optionalTask = taskRepository.findById(id);
 
-        if (user != null && user.isAuthenticated(token)) {
-            if (task == null) {
+        if (optionalUser != null && optionalUser.get().isAuthenticated(token)) {
+            if (optionalTask.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorData("Task doesn't exist. Try a new task."));
             }
 
+            var task = optionalTask.get();
+
             task.updateTaskInfo(modifiedTask);
-            Database.replaceModifiedTask(task);
+            taskRepository.save(task);
         }
+
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteTask(@PathVariable UUID id) {
+    @DeleteMapping("/{id}/{userId}")
+    @Transactional
+    public ResponseEntity deleteTask(@PathVariable UUID id, @PathVariable UUID userId) {
 
+        var user = userRepository.findById(userId);
         var task = taskRepository.findById(id);
 
-        if (task == null) {
+        if (user.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorData("User not found."));
+        }
+        if (task.isEmpty()) {
             return ResponseEntity.badRequest().body(new ErrorData("Task not found."));
         }
 

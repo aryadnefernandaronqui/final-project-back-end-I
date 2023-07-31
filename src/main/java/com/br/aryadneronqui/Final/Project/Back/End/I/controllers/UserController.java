@@ -1,6 +1,5 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.controllers;
 
-import com.br.aryadneronqui.Final.Project.Back.End.I.database.Database;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.CreateUser;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.ErrorData;
 import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.Login;
@@ -9,6 +8,7 @@ import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.UserRepository
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*")
@@ -26,6 +26,7 @@ public class UserController {
 
 
     @PostMapping
+    @Transactional
     public ResponseEntity createUser(@RequestBody @Valid CreateUser newUser){
         if(userRepository.existsByEmail(newUser.email())){
             return ResponseEntity.badRequest().body(new ErrorData("Account already exist. Try a different e-mail"));
@@ -41,14 +42,15 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid Login newLogin){
 
-            var userLogged = userRepository.existsByEmail(newLogin.email());
-            if(!userLogged){
+            var userLogged = userRepository.getReferenceByEmail(newLogin.email());
+            if(userLogged == null){
                 return ResponseEntity.badRequest().body(new ErrorData("User not found."));
             }
             if(userLogged.getPassword().equals(newLogin.password())){
                 return ResponseEntity.badRequest().body(new ErrorData("Password doesn't match. Try again."));
 
         }
+            userRepository.save(userLogged);
         return ResponseEntity.ok().body(userLogged.generateToken());
     }
 
