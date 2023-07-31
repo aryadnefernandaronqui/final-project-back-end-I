@@ -1,0 +1,1 @@
+alter table users add column login_token varchar(100);

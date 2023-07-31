@@ -1,4 +1,11 @@
 package com.br.aryadneronqui.Final.Project.Back.End.I.dtos;
 
-public record Login(String email, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record Login(
+        @NotBlank
+        String email,
+        @NotBlank
+        String password
+) {
 }

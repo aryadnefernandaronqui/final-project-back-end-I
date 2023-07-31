@@ -8,7 +8,10 @@ import com.br.aryadneronqui.Final.Project.Back.End.I.dtos.UpdateTask;
 import com.br.aryadneronqui.Final.Project.Back.End.I.enums.EStatus;
 import com.br.aryadneronqui.Final.Project.Back.End.I.models.Task;
 import com.br.aryadneronqui.Final.Project.Back.End.I.models.User;
+import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.TaskRepository;
+import com.br.aryadneronqui.Final.Project.Back.End.I.repositories.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,22 +23,29 @@ import java.util.UUID;
 @RequestMapping("/tasks")
 public class TaskController {
 
+    @Autowired
+    private TaskRepository taskRepository;
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/{email}")
     public ResponseEntity getAll(
-            @PathVariable("email") String userEmail,
+            @PathVariable("email") UUID userId,
             @RequestParam(required = false) String titleTask,
-                                 @RequestParam(required = false) EStatus status,
-                                 @RequestParam(required = false) boolean archived,
+            @RequestParam(required = false) EStatus status,
+            @RequestParam(required = false) boolean archived,
+            @RequestHeader("AuthToken") String token) {
 
-                                 @RequestHeader("AuthToken") String token) {
 
-        var user = Database.getUserByEmail(userEmail);
 
-        if (!user.isAuthenticated(token)) {
+        var user = userRepository.findById(userId);
+
+        if (user == null) {
             return ResponseEntity.badRequest().body(new ErrorData("Account doesn't exist. Try a new e-mail."));
         }
+        if(!user.is)
 
-        var tasks = Database.getTasksUserLogged(user).stream();
+        var tasks = taskRepository.findAll();
 
         if (titleTask != null) {
             tasks = tasks.filter(t -> t.getTitle().contains(titleTask));
@@ -55,7 +65,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity createTask(@RequestHeader("AuthToken") String token, @RequestBody @Valid CreateTask newTask) {
 
-        var user = Database.getUserByEmail(newTask.userEmail());
+        var user = Database.getUserByEmail(newTask.userId().toString());
 
         if (user != null && user.isAuthenticated(token)) {
             var task = new Task(newTask);
@@ -91,13 +101,14 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteTask(@PathVariable UUID id) {
-        var task = Database.getTaskById(id);
+
+        var task = taskRepository.findById(id);
 
         if (task == null) {
             return ResponseEntity.badRequest().body(new ErrorData("Task not found."));
         }
 
-        Database.removeTask(task);
+        taskRepository.deleteById(id);
 
         return ResponseEntity.noContent().build();
     }

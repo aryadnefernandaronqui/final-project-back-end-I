@@ -4,15 +4,18 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record CreateTask(
         @NotBlank
-        String userEmail,
+        UUID userId,
         @NotBlank
         String title,
         @NotBlank
         String description,
         @NotNull
         LocalDate date
+
+
 ) {
 }
