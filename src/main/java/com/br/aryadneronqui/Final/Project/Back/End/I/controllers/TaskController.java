@@ -30,7 +30,7 @@ public class TaskController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("/{email}")
+    @GetMapping("/{userId}")
     public ResponseEntity getAll(
             @PathVariable UUID userId,
             @RequestParam(required = false) String titleTask,
@@ -56,6 +56,7 @@ public class TaskController {
         return ResponseEntity.ok(task);
 
     }
+
     @PostMapping
     @Transactional
     public ResponseEntity createTask(@RequestHeader("AuthToken") String token, @RequestBody @Valid CreateTask newTask) {
@@ -91,18 +92,20 @@ public class TaskController {
         var optionalUser = userRepository.findById(userId);
         var optionalTask = taskRepository.findById(id);
 
-        if (optionalUser != null && optionalUser.get().isAuthenticated(token)) {
-            if (optionalTask.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ErrorData("Task doesn't exist. Try a new task."));
-            }
-
-            var task = optionalTask.get();
-
-            task.updateTaskInfo(modifiedTask);
-            taskRepository.save(task);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ErrorData("User not found."));
+        }
+        if (optionalUser.get().isAuthenticated(token)) {
+            return ResponseEntity.badRequest().body(new ErrorData("Token not valid"));
+        }
+        if (optionalTask.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ErrorData("Task doesn't exist. Try a new task."));
         }
 
-        return ResponseEntity.ok().body(modifiedTask);
+        var task = optionalTask.get();
+
+        task.updateTaskInfo(modifiedTask);
+        return ResponseEntity.ok().body(task);
     }
 
     @DeleteMapping("/{id}/{userId}")
@@ -112,7 +115,7 @@ public class TaskController {
         var user = userRepository.findById(userId);
         var task = taskRepository.findById(id);
 
-        if (user.isEmpty()){
+        if (user.isEmpty()) {
             return ResponseEntity.badRequest().body(new ErrorData("User not found."));
         }
         if (task.isEmpty()) {

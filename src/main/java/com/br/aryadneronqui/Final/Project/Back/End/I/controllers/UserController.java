@@ -33,13 +33,11 @@ public class UserController {
         }
 
         var user = new User(newUser);
-
-        userRepository.save(user);
-
     return ResponseEntity.ok().body(user);
     }
 
     @PostMapping("/login")
+    @Transactional
     public ResponseEntity login(@RequestBody @Valid Login newLogin){
 
             var userLogged = userRepository.getReferenceByEmail(newLogin.email());
@@ -50,8 +48,8 @@ public class UserController {
                 return ResponseEntity.badRequest().body(new ErrorData("Password doesn't match. Try again."));
 
         }
-            userRepository.save(userLogged);
-        return ResponseEntity.ok().body(userLogged.generateToken());
+            var token = userLogged.generateToken();
+        return ResponseEntity.ok().body(token);
     }
 
 }
