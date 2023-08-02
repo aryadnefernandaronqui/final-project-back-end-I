@@ -7,8 +7,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record CreateTask(
+
+        UUID id,
         @NotBlank
-        UUID userId,
+        String email,
         @NotBlank
         String title,
         @NotBlank

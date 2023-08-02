@@ -46,7 +46,7 @@ public class UserController {
             if(userLogged == null){
                 return ResponseEntity.badRequest().body(new ErrorData("User not found."));
             }
-            if(userLogged.getPassword().equals(newLogin.password())){
+            if(!userLogged.getPassword().equals(newLogin.password())){
                 return ResponseEntity.badRequest().body(new ErrorData("Password doesn't match. Try again."));
 
         }

@@ -32,7 +32,7 @@ public class TaskController {
 
     @GetMapping("/{email}")
     public ResponseEntity getAll(
-            @PathVariable("email") UUID userId,
+            @PathVariable UUID userId,
             @RequestParam(required = false) String titleTask,
             @RequestParam(required = false) EStatus status,
             @RequestParam(required = false) boolean archived,
@@ -60,15 +60,15 @@ public class TaskController {
     @Transactional
     public ResponseEntity createTask(@RequestHeader("AuthToken") String token, @RequestBody @Valid CreateTask newTask) {
 
-        var optionalUser = userRepository.findById(newTask.userId());
+        var user = userRepository.getReferenceByEmail(newTask.email());
         var optionalTask = taskRepository.findAll();
 
-        if (optionalUser.isEmpty()) {
+
+        if (user == null) {
             return ResponseEntity.badRequest().body(new ErrorData("Account doesn't exist. Try a new e-mail."));
         }
-        var user = optionalUser.get();
 
-        if (user != null && user.isAuthenticated(token)) {
+        if (user.isAuthenticated(token)) {
             if (optionalTask.contains(newTask.title())) {
                 return ResponseEntity.badRequest().body(new ErrorData("You already have a task with this title."));
             }
@@ -83,7 +83,10 @@ public class TaskController {
 
     @PutMapping("/{id}/{userId}")
     @Transactional
-    public ResponseEntity updateTask(@RequestHeader("AuthToken") String token, @PathVariable UUID id, @PathVariable UUID userId, @RequestBody UpdateTask modifiedTask) {
+    public ResponseEntity updateTask(@RequestHeader("AuthToken") String token,
+                                     @PathVariable UUID id,
+                                     @PathVariable UUID userId,
+                                     @RequestBody UpdateTask modifiedTask) {
 
         var optionalUser = userRepository.findById(userId);
         var optionalTask = taskRepository.findById(id);
@@ -99,7 +102,7 @@ public class TaskController {
             taskRepository.save(task);
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(modifiedTask);
     }
 
     @DeleteMapping("/{id}/{userId}")

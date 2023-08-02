@@ -40,7 +40,7 @@ public class Task {
         title = newTask.title();
         description = newTask.description();
         date = newTask.date();
-        userId = newTask.userId();
+        userId = newTask.id();
         favorite = false;
         archived = false;
         status = EStatus.MISSING;

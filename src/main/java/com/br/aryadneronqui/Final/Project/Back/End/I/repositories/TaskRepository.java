@@ -9,5 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TaskRepository extends JpaRepository<Task, UUID>, JpaSpecificationExecutor<Task> {
+    List<Task> findAllByUserId(UUID userId);
 
 }
